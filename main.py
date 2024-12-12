@@ -3,6 +3,10 @@ import requests
 import zipfile
 import io
 import pandas as pd
+import plotly.express as px
+
+# Configuración de la página
+st.set_page_config(page_title="Análisis de Delitos", layout="wide")
 
 # Título de la aplicación
 st.title("Análisis de Delitos en la ZMG")
@@ -13,7 +17,16 @@ st.subheader("Por Miguel Vizcaíno")
 # Descripción
 st.write("Empezamos descargando el Data Set de la página oficial del IIEE (Instituto de Información Estadística y Geográfica)")
 st.write("Fuente: https://iieg.gob.mx/ns/wp-content/uploads/2024/09/Centro_agosto24.zip")
-st.write("Se hace una limpieza de los datos, resultando en el siguinte Data Set")
+st.write("El Data Set seleccionado presenta los siguientes problemas:")
+st.write("  - No todas las colonias de cada delito están registradas")
+st.write("  - No todas las ubicaciones de cada delito están registradas")
+st.write("  - No todos los registros de la hora están registrados o se encuentrean escritos correctamente")
+st.write("Para poder trabajar con los datos se obtuvieron 4 dataframes distintos. En todos se descartaron datos que no son reelevantes para nuestro análisis, como el ID de cada municipio, y la zona geográfica dentro del Estado ")
+st.write("  - df: Dataframe de la tabla original con todos los registros")
+st.write("  - df_hour: Dataframe con todos los registros que tienen hora correcta")
+st.write("  - df_loc: Dataframe con todos los registros que tienen ubicación registrada")
+st.write("  - df_clean: Dataframe con todos los registros con hora y ubicación correctas")
+st.write("A continuación se presenta el head del Dataframe limpio (df_clean)")
 
 # URL del archivo ZIP
 url = "https://iieg.gob.mx/ns/wp-content/uploads/2024/09/Centro_agosto24.zip"
@@ -42,24 +55,53 @@ else:
     st.error(f"Error al descargar el archivo ZIP: {response.status_code}")
 
 #------------------------ PREPROCESAMIENTO DEL DATASET --------------------------------
-# Diccionario de coordenadas por municipio
-coordenadas = {
-    'Tonalá': (20.6167, -103.233),
-    'Tlajomulco de Zúñiga': (20.4667, -103.433),
-    'Guadalajara': (20.6767, -103.3475),
-    'El Salto': (20.5219, -103.2176),
-    'San Pedro Tlaquepaque': (20.6408, -103.2938),
-    'Ixtlahuacán de los Membrillos': (20.3636, -103.2167),
-    'Zapotlanejo': (20.6189, -103.0816),
-    'Zapopan': (20.728, -103.4347),
-    'Ixtlahuacán del Río': (20.834, -103.207),
-    'Juanacatlán': (20.5167, -103.1667),
-    'San Cristobal de la Barranca': (21.0241, -103.4644),
-    'Cuquío': (20.7467, -103.0648),
-}
+# --- Se eliminan los campos que no aportan información relevante
+df = df.drop(columns = ['clave_mun', 'zona_geografica'])
 
-# Añadir coordenadas al DataFrame
-df['x'] = df['municipio'].map(lambda municipio: coordenadas.get(municipio, (None, None))[0])
-df['y'] = df['municipio'].map(lambda municipio: coordenadas.get(municipio, (None, None))[1])
+# --- DataFrame - Hora
+# Hacemos una copia de df para tener un dataframe con datos limpios de hora
+df_hour = df.copy()
+# Filtrar las filas donde el formato de la columna 'hora' sea compatible con '%H:%M'
+df_hour['hora_valida'] = pd.to_datetime(df_hour['hora'], format='%H:%M', errors='coerce').notna()
+# Cuenta los registros True y False
+counts = df_hour['hora_valida'].value_counts()
+# Mantener solo las filas válidas y eliminar la columna auxiliar
+df_hour = df_hour[df_hour['hora_valida']].drop(columns=['hora_valida'])
 
-st.dataframe(df.head())  # Muestra el DataFrame de forma interactiva en la página
+# --- DataFrame - Loc
+# Hacemos una copia de df para tener un dataframe con datos limpios de colonia
+df_loc = df.copy()
+df_loc = df_loc[df_loc['colonia'] != 'NO DISPONIBLE']
+
+# --- DataFrame - Clean
+# Hacemos una copia de df_hour para tener un dataframe con datos limpios de hora y colonia
+df_clean = df_hour.copy()
+df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
+
+# -------------------- TIPO DE DELITO ------------------------------
+st.title("1. Análisis de Tipos de Delitos")
+st.subheader("1.1 Distribución de los tipos de delito")
+# Agrupar por delito y calcular porcentaje
+delitos_count = df.groupby('delito')['count'].sum().reset_index()
+delitos_count['percentage'] = (delitos_count['count'] / delitos_count['count'].sum()) * 100
+# Crear la gráfica de pastel
+fig = px.pie(
+    delitos_count,
+    values='percentage',
+    names='delito',
+    title='Distribución de Delitos (%)',
+    labels={'delito': 'Delito', 'percentage': 'Porcentaje'},
+    hover_data={'count': ':,', 'percentage': ':.1f'},  # Formato más claro
+    template='plotly_white',  # Tema visual
+)
+
+# Personalizar la apariencia de la gráfica
+fig.update_traces(textinfo='percent+label', pull=[0.1 if p > 25 else 0 for p in delitos_count['percentage']])
+fig.update_layout(title_x=0.5)  # Centrar el título
+
+# Mostrar la gráfica en Streamlit
+st.plotly_chart(fig, use_container_width=True)
+
+# Mostrar los datos en una tabla interactiva
+st.subheader("Datos resumidos")
+st.dataframe(delitos_count, use_container_width=True)
