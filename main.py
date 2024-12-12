@@ -1,7 +1,7 @@
 import streamlit as st
 
 def main():
-    st.title("Proyecto Final")
+    st.title("Proyecto Final - Miguel Vizcaíno")
     st.subheader("Bienvenido a mi aplicación")
     st.write("Este es un ejemplo básico de una aplicación en Streamlit.")
     st.button("Haz clic aquí")
