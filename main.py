@@ -255,32 +255,17 @@ fig.update_layout(
 st.plotly_chart(fig)
 
  # ------------------------- UBICACION -------------------------------
- # Definir las coordenadas del centro de Jalisco, México (por ejemplo, Guadalajara)
-jalisco_lat, jalisco_lon = 20.6596, -103.3496
-
-# Crear un mapa centrado en Jalisco, México
-m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=True)
-
-# Agregar un marcador de ejemplo en Guadalajara
-folium.Marker(
-    [jalisco_lat, jalisco_lon],
-    popup="Guadalajara, Jalisco",
-    icon=folium.Icon(color='blue', icon='info-sign')
-).add_to(m)
-
-# Título de la aplicación
-st.title("Mapa Interactivo de Jalisco, México")
-
-# Descripción breve sobre el mapa
-st.write("""
-    Este es un mapa interactivo que muestra la ubicación de Guadalajara, Jalisco, México.
-    Puedes explorar el mapa para ver más detalles y acercarte a diferentes áreas del estado.
-""")
-
-# Mostrar el mapa en la app de Streamlit
-st_folium(m, width=725, height=500)
-
-
+# Crear un menú desplegable para seleccionar el delito
+selected_delitos_map = st.selectbox(
+    "Selecciona un delito:",
+    delitos,
+    key="delitos_map"
+)
+# Filtrar los datos según el delito seleccionado
+if selected_delitos_map == "Total":
+    filtered_df_4 = df_loc  # Usar todos los registros
+else:
+    filtered_df_4 = df_loc[df_loc['delito'] == selected_delitos_map]
 # Definir las coordenadas de Jalisco, México
 jalisco_lat, jalisco_lon = 20.6596, -103.3496
 
@@ -291,16 +276,16 @@ m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=
 marker_cluster = MarkerCluster().add_to(m)
 
 # Función para muestrear los puntos para evitar sobrecargar la aplicación
-def sample_data(df, sample_size=0.1):
+def sample_data(filtered_df_4, sample_size=0.05):
     """Función para muestrear una fracción de los datos."""
-    sample_df = df.sample(frac=sample_size)
-    return sample_df
+    sample_filtered_df_4 = filtered_df_4.sample(frac=sample_size)
+    return sample_filtered_df_4
 
 # Muestrear los datos (ajustar el tamaño de la muestra según sea necesario)
-sampled_df = sample_data(df_loc, sample_size=0.01)  # Muestras un 1% de los datos
+sample_filtered_df_4 = sample_data(df_loc, sample_size=0.01)  # Muestras un 1% de los datos
 
 # Agregar los puntos de delito al mapa
-for index, row in sampled_df.iterrows():
+for index, row in sample_filtered_df_4.iterrows():
     folium.Marker(
         location=[row['y'], row['x']],  # Coordenadas y, x de los delitos
         popup=f"{row['delito']} en {row['colonia']}, {row['municipio']} - {row['fecha']} a las {row['hora']}",
