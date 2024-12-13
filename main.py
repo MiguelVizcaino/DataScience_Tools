@@ -255,7 +255,7 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # ------------------------- UBICACION -------------------------------
-st.subheader("2. Análisis de Colonias por Tipo de Delito")
+st.subheader("4. Análisis de Colonias por Tipo de Delito")
 
 # Crear lista de delitos únicos y agregar la opción "Todos"
 delitos = ["Todos"] + sorted(df_loc['delito'].unique())
@@ -278,7 +278,7 @@ colonias_count = filtered_df_2['colonia'].value_counts().reset_index()
 colonias_count.columns = ['colonia', 'count']  # Renombrar columnas
 
 # Tomar las primeras 20 colonias con más delitos
-top_colonias = colonias_count.head(10)
+top_colonias = colonias_count.head(20)
 
 # Crear la gráfica de barras horizontales
 bar_fig = px.bar(
@@ -302,3 +302,24 @@ st.dataframe(top_colonias.style.set_properties(**{
 }).set_table_styles([
     dict(selector='th', props=[('text-align', 'center')])
 ]))
+
+# Mapa de Jalisco
+st.subheader("Mapa de las 10 principales colonias con más delitos")
+# Filtrar las 10 colonias principales con sus coordenadas
+map_data = df_loc[df_loc['colonia'].isin(top_colonias['colonia'])]
+map_data = map_data.drop_duplicates(subset=['colonia'])  # Evitar duplicados
+
+# Crear un mapa centrado en Jalisco
+m = folium.Map(location=[20.6667, -103.3500], zoom_start=10)
+
+# Agregar marcadores para las colonias principales
+marker_cluster = MarkerCluster().add_to(m)
+for _, row in map_data.iterrows():
+    folium.Marker(
+        location=[row['y'], row['x']],
+        popup=f"{row['colonia']}<br>Delitos: {top_colonias[top_colonias['colonia'] == row['colonia']]['count'].values[0]}",
+        icon=folium.Icon(color='red', icon='info-sign')
+    ).add_to(marker_cluster)
+
+# Mostrar el mapa en Streamlit
+st_map = st_folium(m, width=700, height=500)
