@@ -83,7 +83,10 @@ st.subheader("1. Análisis de Tipos de Delitos")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
-selected_municipio_delitos = st.selectbox("Selecciona un municipio:", municipios)
+selected_municipio_delitos = st.selectbox(
+    "Selecciona un municipio:",
+    municipios,
+    key="selectbox_municipio_delitos")
 # Filtrar los datos según el municipio seleccionado
 if selected_municipio_delitos == "Total":
     filtered_df = df  # Usar todos los registros
@@ -136,7 +139,11 @@ st.subheader("2. Análisis de Tipos de Bien Afectado")
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 
 # Crear un menú desplegable para seleccionar el municipio
-selected_municipio_bien = st.selectbox("Selecciona un municipio:", municipios)
+selected_municipio_bien = st.selectbox(
+    "Selecciona un municipio:",
+    municipios,
+    key="selectbox_municipio_bienes"
+)
 
 # Filtrar los datos según el municipio seleccionado
 if selected_municipio_bien == "Total":
