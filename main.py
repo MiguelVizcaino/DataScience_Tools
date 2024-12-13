@@ -110,10 +110,38 @@ fig = px.pie(
     hover_data=['count'],  # Mostrar el conteo al pasar el mouse
 )
 
-# Mostrar la gráfica en Streamlit
+# Mostrar la gráfica de pie en Streamlit
 st.plotly_chart(fig)
 
-# Mostrar la tabla resumida
+# Agrupar por delito y semana
+df['semana'] = pd.to_datetime(df['fecha']).dt.isocalendar().week
+semanal_count = filtered_df.groupby(['delito', 'semana']).size().reset_index(name='count')
+
+# Ordenar por total de conteos para cada delito
+delitos_totales = semanal_count.groupby('delito')['count'].sum().reset_index()
+delitos_totales = delitos_totales.sort_values(by='count', ascending=False)
+
+# Crear la gráfica de barras horizontales
+grafica_barras = px.bar(
+    semanal_count,
+    x='count',
+    y='delito',
+    color='semana',
+    title=f"Conteo semanal de delitos en {selected_municipio}",
+    labels={'count': 'Conteo', 'delito': 'Delito', 'semana': 'Semana'},
+    orientation='h'
+)
+
+# Mostrar la gráfica de barras en Streamlit
+st.plotly_chart(grafica_barras)
+
+# Mostrar la tabla resumida centrada
 data_summary = delitos_count[['delito', 'count', 'percentage']]
+styled_table = data_summary.style.set_properties(**{
+    'text-align': 'center'
+}).set_table_styles([
+    dict(selector='th', props=[('text-align', 'center')])
+])
+
 st.subheader("Datos resumidos")
-st.dataframe(data_summary)
+st.dataframe(styled_table)
