@@ -277,3 +277,34 @@ st.write("""
 
 # Mostrar el mapa en la app de Streamlit
 st_folium(m, width=725, height=500)
+
+
+# Definir las coordenadas de Jalisco, México
+jalisco_lat, jalisco_lon = 20.6596, -103.3496
+
+# Crear un mapa centrado en Jalisco
+m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=True)
+
+# Crear un marcador de agrupación
+marker_cluster = MarkerCluster().add_to(m)
+
+# Agregar los puntos de delito al mapa
+for index, row in df_loc.iterrows():
+    folium.Marker(
+        location=[row['y'], row['x']],  # Coordenadas y, x de los delitos
+        popup=f"{row['delito']} en {row['colonia']}, {row['municipio']} - {row['fecha']} a las {row['hora']}",
+        icon=folium.Icon(color='red', icon='info-sign')
+    ).add_to(marker_cluster)
+
+# Título de la aplicación
+st.title("Mapa de Delitos en Jalisco, México")
+
+# Descripción breve sobre el mapa
+st.write("""
+    Este es un mapa interactivo que muestra los delitos ocurridos en Jalisco. 
+    Los puntos en el mapa están agrupados de acuerdo a su proximidad y se irán
+    separando conforme te acerques al mapa.
+""")
+
+# Mostrar el mapa interactivo en Streamlit
+st_folium(m, width=725, height=500)
