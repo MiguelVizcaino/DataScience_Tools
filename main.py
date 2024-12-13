@@ -277,15 +277,15 @@ else:
 colonias_count = filtered_df_2['colonia'].value_counts().reset_index()
 colonias_count.columns = ['colonia', 'count']  # Renombrar columnas
 
-# Tomar las primeras 20 colonias con más delitos
-top_colonias = colonias_count.head(20)
+# Tomar las primeras 10 colonias con más delitos
+top_colonias = colonias_count.head(10)
 
 # Crear la gráfica de barras horizontales
 bar_fig = px.bar(
     top_colonias.sort_values(by='count', ascending=True),
     x='count',
     y='colonia',
-    title=f"Top 20 colonias con más delitos ({selected_delito})",
+    title=f"Top 10 colonias con más delitos ({selected_delito})",
     labels={'count': 'Número de delitos', 'colonia': 'Colonia'},
     orientation='h',
     color='count',
