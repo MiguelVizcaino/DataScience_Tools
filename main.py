@@ -8,6 +8,7 @@ import io
 import folium
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
+import random
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
@@ -286,11 +287,20 @@ jalisco_lat, jalisco_lon = 20.6596, -103.3496
 # Crear un mapa centrado en Jalisco
 m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=True)
 
-# Crear un marcador de agrupación
+# Crear un marcador de agrupación (MarkerCluster)
 marker_cluster = MarkerCluster().add_to(m)
 
+# Función para muestrear los puntos para evitar sobrecargar la aplicación
+def sample_data(df, sample_size=0.1):
+    """Función para muestrear una fracción de los datos."""
+    sample_df = df.sample(frac=sample_size)
+    return sample_df
+
+# Muestrear los datos (ajustar el tamaño de la muestra según sea necesario)
+sampled_df = sample_data(df_loc, sample_size=0.01)  # Muestras un 1% de los datos
+
 # Agregar los puntos de delito al mapa
-for index, row in df_loc.iterrows():
+for index, row in sampled_df.iterrows():
     folium.Marker(
         location=[row['y'], row['x']],  # Coordenadas y, x de los delitos
         popup=f"{row['delito']} en {row['colonia']}, {row['municipio']} - {row['fecha']} a las {row['hora']}",
@@ -304,7 +314,8 @@ st.title("Mapa de Delitos en Jalisco, México")
 st.write("""
     Este es un mapa interactivo que muestra los delitos ocurridos en Jalisco. 
     Los puntos en el mapa están agrupados de acuerdo a su proximidad y se irán
-    separando conforme te acerques al mapa.
+    separando conforme te acerques al mapa. La muestra de puntos ha sido reducida
+    para mejorar el rendimiento.
 """)
 
 # Mostrar el mapa interactivo en Streamlit
