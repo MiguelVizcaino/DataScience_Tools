@@ -284,7 +284,7 @@ m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=
 marker_cluster = MarkerCluster().add_to(m)
 
 # Función para muestrear los puntos para evitar sobrecargar la aplicación
-def sample_data(filtered_df_4, sample_size=0.05):
+def sample_data(filtered_df_4, sample_size=0.01):
     """Función para muestrear una fracción de los datos."""
     sample_filtered_df_4 = filtered_df_4.sample(frac=sample_size)
     return sample_filtered_df_4
