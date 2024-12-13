@@ -63,7 +63,7 @@ if response.status_code == 200:
             df = pd.read_csv(csv_file)
 
         # Mostrar las primeras filas del DataFrame
-        st.dataframe(df.head())  # Muestra el DataFrame de forma interactiva en la página
+        #st.dataframe(df.head())  # Muestra el DataFrame de forma interactiva en la página
 else:
     st.error(f"Error al descargar el archivo ZIP: {response.status_code}")
 
@@ -90,7 +90,7 @@ df_loc = df_loc[df_loc['colonia'] != 'NO DISPONIBLE']
 # Hacemos una copia de df_hour para tener un dataframe con datos limpios de hora y colonia
 df_clean = df_hour.copy()
 df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
-
+st.dataframe(df_clean.head())
 # -------------------- TIPO DE DELITO ------------------------------
 st.subheader("1. Análisis de Tipos de Delitos")
 # Crear una lista de municipios únicos y agregar la opción "Total"
