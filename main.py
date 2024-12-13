@@ -13,18 +13,6 @@ import random
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
 
-# Aplicar estilos personalizados
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-    html, body, [class*="css"]  {
-        font-family: 'Poppins', sans-serif;
-    }
-    .black-bg { background-color: black; color: white; }
-    .white-bg { background-color: white; color: black; }
-    </style>
-""", unsafe_allow_html=True)
-
 # Título de la aplicación
 st.title("Análisis de Delitos en Jalisco")
 st.subheader("Por Miguel Vizcaíno")
@@ -115,7 +103,6 @@ df_clean = df_hour.copy()
 df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
 st.dataframe(df_clean.head())
 # -------------------- TIPO DE DELITO ------------------------------
-st.markdown('<div class="black-bg">', unsafe_allow_html=True)
 st.subheader("1. Análisis de Tipos de Delitos")
 st.write("En esta sección se obtendrá información sobre la distribución de los diferentes tipos de delito en función del municipio que se quiera analizar.")
 # Crear una lista de municipios únicos y agregar la opción "Total"
@@ -172,7 +159,6 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # -------------------- TIPO DE BIEN AFECTADO ------------------------------
-st.markdown('<div class="white-bg">', unsafe_allow_html=True)
 st.subheader("2. Análisis de Tipos de Bien Afectado")
 st.write("En esta sección se obtendrá información sobre la distribución de los diferentes bienes que son afectados por cada delito en función del municipio que se quiera analizar.")
 # Crear una lista de municipios únicos y agregar la opción "Total"
@@ -230,7 +216,6 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # --------------------------- TIEMPO -----------------------------------
-st.markdown('<div class="black-bg">', unsafe_allow_html=True)
 st.subheader("3. Análisis de Delitos en el Tiempo")
 st.write("En esta sección se obtendrá información sobre la distribución por día de la semana y hora de la cantidad de delitos cometidos del delito seleccionado.")
 # Crear una lista de delitos y agregar la opción "Total"
@@ -273,7 +258,6 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # ------------------------- UBICACION -------------------------------
-st.markdown('<div class="white-bg">', unsafe_allow_html=True)
 st.subheader("4. Análisis de Tipo de Delito por Ubicación")
 st.write("En esta sección se obtendrá información sobre la distribución geográfica por colonias de la cantidad de delitos cometidos del delito seleccionado.")
 # Crear lista de delitos únicos y agregar la opción "Todos"
