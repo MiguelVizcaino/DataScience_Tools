@@ -7,6 +7,7 @@ import zipfile
 import io
 import folium
 from streamlit_folium import st_folium
+from folium.plugins import MarkerCluster
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
