@@ -5,6 +5,8 @@ import plotly.graph_objects as go
 import requests
 import zipfile
 import io
+import folium
+from streamlit_folium import st_folium
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
@@ -210,8 +212,7 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # --------------------------- TIEMPO -----------------------------------
-st.subheader("3. Análisis de Tipos en el Tiempo")
-
+st.subheader("3. Análisis de Delitos en el Tiempo")
 # Crear una lista de delitos y agregar la opción "Total"
 delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el delito
@@ -225,10 +226,8 @@ if selected_delitos_heatmap == "Total":
     filtered_df_3 = df_hour  # Usar todos los registros
 else:
     filtered_df_3 = df_hour[df_hour['delito'] == selected_delitos_heatmap]
-
 # Agrupar los datos por 'weekday' y 'hora_interval' y contar la cantidad de delitos
 heatmap_data = filtered_df_3.groupby(['weekday', 'hora_interval']).size().reset_index(name='conteo')
-
 # Crear el heatmap usando Plotly Express
 fig = px.density_heatmap(heatmap_data,
                          x="weekday", 
@@ -236,9 +235,8 @@ fig = px.density_heatmap(heatmap_data,
                          nbinsy=12,
                          z="conteo", 
                          color_continuous_scale="reds",  # Paleta de colores rojos
-                         title=f"Distribución de delitos semanal en {selected_delitos_heatmap}",
+                         title=f"Distribución de delitos semanal: {selected_delitos_heatmap}",
                          labels={"conteo": "Número de Delitos", "hora_interval": "Hora", "weekday": "Día de la Semana"})
-
 # Ajustar el orden de los días de la semana
 fig.update_layout(
     yaxis={'title': 'Hora del Día', 'dtick': 2},  # Usar tick cada hora
@@ -251,6 +249,31 @@ fig.update_layout(
         'categoryarray': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']  # Orden de los días
     }
 )
-
 # Mostrar el gráfico interactivo en Streamlit
 st.plotly_chart(fig)
+
+ # ------------------------- UBICACION -------------------------------
+ # Definir las coordenadas del centro de Jalisco, México (por ejemplo, Guadalajara)
+jalisco_lat, jalisco_lon = 20.6596, -103.3496
+
+# Crear un mapa centrado en Jalisco, México
+m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=True)
+
+# Agregar un marcador de ejemplo en Guadalajara
+folium.Marker(
+    [jalisco_lat, jalisco_lon],
+    popup="Guadalajara, Jalisco",
+    icon=folium.Icon(color='blue', icon='info-sign')
+).add_to(m)
+
+# Título de la aplicación
+st.title("Mapa Interactivo de Jalisco, México")
+
+# Descripción breve sobre el mapa
+st.write("""
+    Este es un mapa interactivo que muestra la ubicación de Guadalajara, Jalisco, México.
+    Puedes explorar el mapa para ver más detalles y acercarte a diferentes áreas del estado.
+""")
+
+# Mostrar el mapa en la app de Streamlit
+st_folium(m, width=725, height=500)
