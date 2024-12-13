@@ -50,7 +50,7 @@ if response.status_code == 200:
             df = pd.read_csv(csv_file)
 
         # Mostrar las primeras filas del DataFrame
-        #st.dataframe(df.head())  # Muestra el DataFrame de forma interactiva en la página
+        st.dataframe(df.head())  # Muestra el DataFrame de forma interactiva en la página
 else:
     st.error(f"Error al descargar el archivo ZIP: {response.status_code}")
 
@@ -81,26 +81,26 @@ df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
 # -------------------- TIPO DE DELITO ------------------------------
 st.title("1. Análisis de Tipos de Delitos")
 st.subheader("1.1 Distribución de los tipos de delito")
-# Agrupar por delito y calcular porcentaje
-delitos_count = df.groupby('delito')['count'].sum().reset_index()
+# Agrupar por 'delito' y contar las ocurrencias
+delitos_count = df['delito'].value_counts().reset_index()
+delitos_count.columns = ['delito', 'count']  # Renombrar columnas para claridad
+
+# Calcular el porcentaje de cada delito
 delitos_count['percentage'] = (delitos_count['count'] / delitos_count['count'].sum()) * 100
-# Crear la gráfica de pastel
+
+# Crear la gráfica de pie con Plotly
 fig = px.pie(
     delitos_count,
     values='percentage',
     names='delito',
-    title='Distribución de Delitos (%)',
+    title='Porcentaje de cada Delito',
     labels={'delito': 'Delito', 'percentage': 'Porcentaje'},
-    hover_data={'count': ':,', 'percentage': ':.1f'},  # Formato más claro
-    template='plotly_white',  # Tema visual
+    hover_data=['count'],  # Mostrar el conteo al pasar el mouse
 )
 
-# Personalizar la apariencia de la gráfica
-fig.update_traces(textinfo='percent+label', pull=[0.1 if p > 25 else 0 for p in delitos_count['percentage']])
-fig.update_layout(title_x=0.5)  # Centrar el título
-
 # Mostrar la gráfica en Streamlit
-st.plotly_chart(fig, use_container_width=True)
+import streamlit as st
+st.plotly_chart(fig)
 
 # Mostrar los datos en una tabla interactiva
 st.subheader("Datos resumidos")
