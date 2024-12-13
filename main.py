@@ -93,12 +93,17 @@ if selected_municipio == "Total":
 else:
     filtered_df = df[df['municipio'] == selected_municipio]
 
+# Calcular el número de semanas entre la primera y última fecha
+filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
+num_semanas = ((filtered_df['fecha'].max() - filtered_df['fecha'].min()).days // 7) + 1
+
 # Agrupar por 'delito' y contar las ocurrencias
 delitos_count = filtered_df['delito'].value_counts().reset_index()
 delitos_count.columns = ['delito', 'count']  # Renombrar columnas para claridad
 
-# Calcular el porcentaje de cada delito
+# Calcular el porcentaje y el conteo semanal
 delitos_count['percentage'] = (delitos_count['count'] / delitos_count['count'].sum()) * 100
+delitos_count['count_week'] = delitos_count['count'] / num_semanas
 
 # Crear la gráfica de pie con Plotly
 fig = px.pie(
@@ -113,35 +118,25 @@ fig = px.pie(
 # Mostrar la gráfica de pie en Streamlit
 st.plotly_chart(fig)
 
-# Agrupar por delito y semana
-df['semana'] = pd.to_datetime(df['fecha']).dt.isocalendar().week
-semanal_count = filtered_df.groupby(['delito', 'semana']).size().reset_index(name='count')
-
-# Ordenar por total de conteos para cada delito
-delitos_totales = semanal_count.groupby('delito')['count'].sum().reset_index()
-delitos_totales = delitos_totales.sort_values(by='count', ascending=False)
-
-# Crear la gráfica de barras horizontales
-grafica_barras = px.bar(
-    semanal_count,
-    x='count',
+# Crear la gráfica de barras horizontales por conteo semanal
+barras_fig = px.bar(
+    delitos_count.sort_values(by='count_week', ascending=False),
+    x='count_week',
     y='delito',
-    color='semana',
-    title=f"Conteo semanal de delitos en {selected_municipio}",
-    labels={'count': 'Conteo', 'delito': 'Delito', 'semana': 'Semana'},
-    orientation='h'
+    title=f"Delitos por semana en {selected_municipio}",
+    labels={'count_week': 'Delitos por semana', 'delito': 'Delito'},
+    orientation='h',
+    color='delito'
 )
 
 # Mostrar la gráfica de barras en Streamlit
-st.plotly_chart(grafica_barras)
+st.plotly_chart(barras_fig)
 
 # Mostrar la tabla resumida centrada
-data_summary = delitos_count[['delito', 'count', 'percentage']]
-styled_table = data_summary.style.set_properties(**{
+data_summary = delitos_count[['delito', 'count', 'count_week', 'percentage']]
+st.subheader("Datos resumidos")
+st.dataframe(data_summary.style.set_properties(**{
     'text-align': 'center'
 }).set_table_styles([
     dict(selector='th', props=[('text-align', 'center')])
-])
-
-st.subheader("Datos resumidos")
-st.dataframe(styled_table)
+]))
