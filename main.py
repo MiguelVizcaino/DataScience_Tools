@@ -255,51 +255,50 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # ------------------------- UBICACION -------------------------------
-st.subheader("4. Análisis de Delitos por Ubicación")
-# Descripción breve sobre el mapa
-st.write("""
-    Este es un mapa interactivo que muestra los delitos ocurridos en Jalisco. 
-    Los puntos en el mapa están agrupados de acuerdo a su proximidad y se irán
-    separando conforme te acerques al mapa. La muestra de puntos ha sido reducida
-    para mejorar el rendimiento.
-""")
-# Crear un menú desplegable para seleccionar el delito
-selected_delitos_map = st.selectbox(
-    "Selecciona un delito:",
+st.subheader("2. Análisis de Colonias por Tipo de Delito")
+
+# Crear lista de delitos únicos y agregar la opción "Todos"
+delitos = ["Todos"] + sorted(df_loc['delito'].unique())
+
+# Crear un menú desplegable para seleccionar el tipo de delito
+selected_delito = st.selectbox(
+    "Selecciona un tipo de delito:",
     delitos,
-    key="delitos_map"
+    key="selectbox_tipo_delito"
 )
+
 # Filtrar los datos según el delito seleccionado
-if selected_delitos_map == "Total":
-    filtered_df_4 = df_loc  # Usar todos los registros
+if selected_delito == "Todos":
+    filtered_df_2 = df_loc
 else:
-    filtered_df_4 = df_loc[df_loc['delito'] == selected_delitos_map]
-# Definir las coordenadas de Jalisco, México
-jalisco_lat, jalisco_lon = 20.6596, -103.3496
+    filtered_df_2 = df_loc[df_loc['delito'] == selected_delito]
 
-# Crear un mapa centrado en Jalisco
-m = folium.Map(location=[jalisco_lat, jalisco_lon], zoom_start=8, control_scale=True)
+# Agrupar por colonia y contar los delitos
+colonias_count = filtered_df_2['colonia'].value_counts().reset_index()
+colonias_count.columns = ['colonia', 'count']  # Renombrar columnas
 
-# Crear un marcador de agrupación (MarkerCluster)
-marker_cluster = MarkerCluster().add_to(m)
+# Tomar las primeras 20 colonias con más delitos
+top_colonias = colonias_count.head(20)
 
-# Función para muestrear los puntos para evitar sobrecargar la aplicación
-def sample_data(filtered_df_4, sample_size=0.01):
-    """Función para muestrear una fracción de los datos."""
-    sample_filtered_df_4 = filtered_df_4.sample(frac=sample_size)
-    return sample_filtered_df_4
+# Crear la gráfica de barras horizontales
+bar_fig = px.bar(
+    top_colonias.sort_values(by='count', ascending=True),
+    x='count',
+    y='colonia',
+    title=f"Top 20 colonias con más delitos ({selected_delito})",
+    labels={'count': 'Número de delitos', 'colonia': 'Colonia'},
+    orientation='h',
+    color='count',
+    color_continuous_scale='Reds'
+)
 
-# Muestrear los datos (ajustar el tamaño de la muestra según sea necesario)
-sample_filtered_df_4 = sample_data(df_loc, sample_size=0.01)  # Muestras un 1% de los datos
+# Mostrar la gráfica de barras
+st.plotly_chart(bar_fig)
 
-# Agregar los puntos de delito al mapa
-for index, row in sample_filtered_df_4.iterrows():
-    folium.Marker(
-        location=[row['y'], row['x']],  # Coordenadas y, x de los delitos
-        popup=f"{row['delito']} en {row['colonia']}, {row['municipio']} - {row['fecha']} a las {row['hora']}",
-        icon=folium.Icon(color='red', icon='info-sign')
-    ).add_to(marker_cluster)
-
-
-# Mostrar el mapa interactivo en Streamlit
-st_folium(m, width=725, height=500)
+# Datos resumidos
+st.subheader("Datos resumidos")
+st.dataframe(top_colonias.style.set_properties(**{
+    'text-align': 'center'
+}).set_table_styles([
+    dict(selector='th', props=[('text-align', 'center')])
+]))
