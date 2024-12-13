@@ -210,14 +210,14 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # --------------------------- TIEMPO -----------------------------------
-st.subheader("1. Análisis de Tipos en el Tiempo")
+st.subheader("3. Análisis de Tipos en el Tiempo")
 
 # Crear una lista de delitos y agregar la opción "Total"
 delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
 selected_delitos_heatmap = st.selectbox(
     "Selecciona un delito:",
-    municipios,
+    delitos,
     key="delitos_heatmap"
 )
 # Filtrar los datos según el municipio seleccionado
