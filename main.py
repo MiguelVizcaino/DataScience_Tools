@@ -1,9 +1,9 @@
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 import requests
 import zipfile
 import io
-import pandas as pd
-import plotly.express as px
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
