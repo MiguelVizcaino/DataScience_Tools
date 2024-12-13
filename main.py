@@ -214,17 +214,17 @@ st.subheader("3. Análisis de Tipos en el Tiempo")
 
 # Crear una lista de delitos y agregar la opción "Total"
 delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
-# Crear un menú desplegable para seleccionar el municipio
+# Crear un menú desplegable para seleccionar el delito
 selected_delitos_heatmap = st.selectbox(
     "Selecciona un delito:",
     delitos,
     key="delitos_heatmap"
 )
-# Filtrar los datos según el municipio seleccionado
+# Filtrar los datos según el delito seleccionado
 if selected_delitos_heatmap == "Total":
     filtered_df_3 = df_hour  # Usar todos los registros
 else:
-    filtered_df_3 = df[df_hour['municipio'] == selected_municipio_bien]
+    filtered_df_3 = df[df_hour['delito'] == selected_delitos_heatmap]
 
 # Agrupar los datos por 'weekday' y 'hora_interval' y contar la cantidad de delitos
 heatmap_data = filtered_df_3.groupby(['weekday', 'hora_interval']).size().reset_index(name='conteo')
