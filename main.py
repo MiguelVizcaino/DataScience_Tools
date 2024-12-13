@@ -9,7 +9,7 @@ import io
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
 
 # Título de la aplicación
-st.title("Análisis de Delitos en la ZMG")
+st.title("Análisis de Delitos en Jalisco")
 st.subheader("Por Miguel Vizcaíno")
 
 #------------------------ INTRODUCCIÓN --------------------------------
@@ -28,23 +28,36 @@ st.write("  - df_loc: Dataframe con todos los registros que tienen ubicación re
 st.write("  - df_clean: Dataframe con todos los registros con hora y ubicación correctas")
 st.write("A continuación se presenta el head del Dataframe limpio (df_clean)")
 
-# URL del archivo ZIP
-url = "https://iieg.gob.mx/ns/wp-content/uploads/2024/09/Centro_agosto24.zip"
+# Diccionario de nombres y URLs correspondientes
+urls = {
+    "Altos Norte": "https://iieg.gob.mx/ns/wp-content/uploads/2024/06/Altos_Norte_mayo24.zip",
+    "Altos Sur": "https://iieg.gob.mx/ns/wp-content/uploads/2024/08/Altos_Sur_junio24.zip",
+    "Ciénega": "https://iieg.gob.mx/ns/wp-content/uploads/2024/08/Cienega_julio24.zip",
+    "Centro": "https://iieg.gob.mx/ns/wp-content/uploads/2024/09/Centro_agosto24.zip",
+    "Costa Sur": "https://iieg.gob.mx/ns/wp-content/uploads/2024/10/Costa_Sur_sep24.zip",
+    "Costa-Sierra Occidental": "https://iieg.gob.mx/ns/wp-content/uploads/2024/11/Costa_Sierra_Occidental_oct24.zip",
+    "Lagunas": "https://iieg.gob.mx/ns/wp-content/uploads/2024/01/Lagunas_nov23.zip",
+    "Norte": "https://iieg.gob.mx/ns/wp-content/uploads/2024/01/Norte_diciembre23.zip",
+    "Sierra de Amula": "https://iieg.gob.mx/ns/wp-content/uploads/2024/02/Sierra_Amula_ene24.zip",
+    "Sur": "https://iieg.gob.mx/ns/wp-content/uploads/2024/05/Sur_feb24.zip",
+    "Sureste": "https://iieg.gob.mx/ns/wp-content/uploads/2024/05/Sureste_mar24.zip",
+    "Valles": "https://iieg.gob.mx/ns/wp-content/uploads/2024/05/valles_abr24.zip"
+}
+
+# Selección del nombre desde el selectbox
+selected_region = st.selectbox("Selecciona una región:", list(urls.keys()), index=3)  # 'Centro' es el valor por defecto
+
+# Obtener el URL correspondiente a la región seleccionada
+url = urls[selected_region]
 
 # Descargar el archivo ZIP desde el enlace
 response = requests.get(url)
 if response.status_code == 200:
-    #st.success("Archivo ZIP descargado exitosamente.")
-
     # Abrir el archivo ZIP en memoria
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-        # Listar los archivos dentro del ZIP
-        #st.write("Archivos dentro del ZIP:", z.namelist())
-
         # Tomar el primer archivo CSV dentro del ZIP
         csv_filename = z.namelist()[0]
-        #st.write(f"Abrir archivo CSV: {csv_filename}")
-
+        
         # Leer el archivo CSV en un DataFrame de pandas
         with z.open(csv_filename) as csv_file:
             df = pd.read_csv(csv_file)
