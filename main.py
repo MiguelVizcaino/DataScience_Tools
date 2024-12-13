@@ -236,7 +236,7 @@ fig = px.density_heatmap(heatmap_data,
                          nbinsy=12,
                          z="conteo", 
                          color_continuous_scale="reds",  # Paleta de colores rojos
-                         title="Distribución de Delitos por Día de la Semana y Hora",
+                         title="Distribución de delitos semanal en {selected_delitos_heatmap}",
                          labels={"conteo": "Número de Delitos", "hora_interval": "Hora", "weekday": "Día de la Semana"})
 
 # Ajustar el orden de los días de la semana
