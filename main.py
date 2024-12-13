@@ -79,32 +79,25 @@ df_clean = df_hour.copy()
 df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
 
 # -------------------- TIPO DE DELITO ------------------------------
-st.title("1. Análisis de Tipos de Delitos")
-st.subheader("1.1 Distribución de los tipos de delito")
+st.subheader("1. Análisis de Tipos de Delitos")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
-
 # Crear un menú desplegable para seleccionar el municipio
 selected_municipio = st.selectbox("Selecciona un municipio:", municipios)
-
 # Filtrar los datos según el municipio seleccionado
 if selected_municipio == "Total":
     filtered_df = df  # Usar todos los registros
 else:
     filtered_df = df[df['municipio'] == selected_municipio]
-
 # Calcular el número de semanas entre la primera y última fecha
 filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
 num_semanas = ((filtered_df['fecha'].max() - filtered_df['fecha'].min()).days // 7) + 1
-
 # Agrupar por 'delito' y contar las ocurrencias
 delitos_count = filtered_df['delito'].value_counts().reset_index()
 delitos_count.columns = ['delito', 'count']  # Renombrar columnas para claridad
-
 # Calcular el porcentaje y el conteo semanal
 delitos_count['percentage'] = (delitos_count['count'] / delitos_count['count'].sum()) * 100
 delitos_count['count_week'] = delitos_count['count'] / num_semanas
-
 # Crear la gráfica de pie con Plotly
 fig = px.pie(
     delitos_count,
@@ -114,10 +107,8 @@ fig = px.pie(
     labels={'delito': 'Delito', 'percentage': 'Porcentaje'},
     hover_data=['count'],  # Mostrar el conteo al pasar el mouse
 )
-
 # Mostrar la gráfica de pie en Streamlit
 st.plotly_chart(fig)
-
 # Crear la gráfica de barras horizontales por conteo semanal
 barras_fig = px.bar(
     delitos_count.sort_values(by='count_week', ascending=False),
@@ -128,12 +119,62 @@ barras_fig = px.bar(
     orientation='h',
     color='delito'
 )
-
 # Mostrar la gráfica de barras en Streamlit
 st.plotly_chart(barras_fig)
-
 # Mostrar la tabla resumida centrada
 data_summary = delitos_count[['delito', 'count', 'count_week', 'percentage']]
+st.subheader("Datos resumidos")
+st.dataframe(data_summary.style.set_properties(**{
+    'text-align': 'center'
+}).set_table_styles([
+    dict(selector='th', props=[('text-align', 'center')])
+]))
+
+# -------------------- TIPO DE BIEN AFECTADO ------------------------------
+st.subheader("1. Análisis de Tipos de Bien Afectado")
+# Crear una lista de municipios únicos y agregar la opción "Total"
+municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
+# Crear un menú desplegable para seleccionar el municipio
+selected_municipio = st.selectbox("Selecciona un municipio:", municipios)
+# Filtrar los datos según el municipio seleccionado
+if selected_municipio == "Total":
+    filtered_df = df  # Usar todos los registros
+else:
+    filtered_df = df[df['municipio'] == selected_municipio]
+# Calcular el número de semanas entre la primera y última fecha
+filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
+num_semanas = ((filtered_df['fecha'].max() - filtered_df['fecha'].min()).days // 7) + 1
+# Agrupar por 'bien_afectado' y contar las ocurrencias
+bien_afectado_count = filtered_df['bien_afectado'].value_counts().reset_index()
+bien_afectado_count.columns = ['bien_afectado', 'count']  # Renombrar columnas para claridad
+# Calcular el porcentaje y el conteo semanal
+bien_afectado_count['percentage'] = (bien_afectado_count['count'] / bien_afectado_count['count'].sum()) * 100
+bien_afectado_count['count_week'] = bien_afectado_count['count'] / num_semanas
+# Crear la gráfica de pie con Plotly
+fig = px.pie(
+    bien_afectado_count,
+    values='percentage',
+    names='bien_afectado',
+    title=f"Porcentaje de bienes afectados en {selected_municipio}",
+    labels={'bien_afectado': 'Bienes Afectados', 'percentage': 'Porcentaje'},
+    hover_data=['count'],  # Mostrar el conteo al pasar el mouse
+)
+# Mostrar la gráfica de pie en Streamlit
+st.plotly_chart(fig)
+# Crear la gráfica de barras horizontales por conteo semanal
+barras_fig = px.bar(
+    bien_afectado_count.sort_values(by='count_week', ascending=False),
+    x='count_week',
+    y='bien_afectado',
+    title=f"Bienes afectados por semana en {selected_municipio}",
+    labels={'count_week': 'Bienes afectados por semana', 'bien_afectado': 'Bienes afectados'},
+    orientation='h',
+    color='bien_afectado'
+)
+# Mostrar la gráfica de barras en Streamlit
+st.plotly_chart(barras_fig)
+# Mostrar la tabla resumida centrada
+data_summary = bien_afectado_count[['bien_afectado', 'count', 'count_week', 'percentage']]
 st.subheader("Datos resumidos")
 st.dataframe(data_summary.style.set_properties(**{
     'text-align': 'center'
