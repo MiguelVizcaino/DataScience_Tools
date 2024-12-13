@@ -83,12 +83,12 @@ st.subheader("1. Análisis de Tipos de Delitos")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
-selected_municipio = st.selectbox("Selecciona un municipio:", municipios)
+selected_municipio_delitos = st.selectbox("Selecciona un municipio:", municipios)
 # Filtrar los datos según el municipio seleccionado
-if selected_municipio == "Total":
+if selected_municipio_delitos == "Total":
     filtered_df = df  # Usar todos los registros
 else:
-    filtered_df = df[df['municipio'] == selected_municipio]
+    filtered_df = df[df['municipio'] == selected_municipio_delitos]
 # Calcular el número de semanas entre la primera y última fecha
 filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
 num_semanas = ((filtered_df['fecha'].max() - filtered_df['fecha'].min()).days // 7) + 1
@@ -103,7 +103,7 @@ fig = px.pie(
     delitos_count,
     values='percentage',
     names='delito',
-    title=f"Porcentaje de delitos en {selected_municipio}",
+    title=f"Porcentaje de delitos en {selected_municipio_delitos}",
     labels={'delito': 'Delito', 'percentage': 'Porcentaje'},
     hover_data=['count'],  # Mostrar el conteo al pasar el mouse
 )
@@ -114,7 +114,7 @@ barras_fig = px.bar(
     delitos_count.sort_values(by='count_week', ascending=False),
     x='count_week',
     y='delito',
-    title=f"Delitos por semana en {selected_municipio}",
+    title=f"Delitos por semana en {selected_municipio_delitos}",
     labels={'count_week': 'Delitos por semana', 'delito': 'Delito'},
     orientation='h',
     color='delito'
@@ -131,18 +131,18 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # -------------------- TIPO DE BIEN AFECTADO ------------------------------
-st.subheader("1. Análisis de Tipos de Bien Afectado")
+st.subheader("2. Análisis de Tipos de Bien Afectado")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 
 # Crear un menú desplegable para seleccionar el municipio
-selected_municipio = st.selectbox("Selecciona un municipio:", municipios)
+selected_municipio_bien = st.selectbox("Selecciona un municipio:", municipios)
 
 # Filtrar los datos según el municipio seleccionado
-if selected_municipio == "Total":
+if selected_municipio_bien == "Total":
     filtered_df = df  # Usar todos los registros
 else:
-    filtered_df = df[df['municipio'] == selected_municipio]
+    filtered_df = df[df['municipio'] == selected_municipio_bien]
 
 # Calcular el número de semanas entre la primera y última fecha
 filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
@@ -161,7 +161,7 @@ fig = px.pie(
     bienes_count,
     values='percentage',
     names='bien_afectado',
-    title=f"Porcentaje de bienes afectados en {selected_municipio}",
+    title=f"Porcentaje de bienes afectados en {selected_municipio_bien}",
     labels={'bien_afectado': 'Bien Afectado', 'percentage': 'Porcentaje'},
     hover_data=['count'],  # Mostrar el conteo al pasar el mouse
 )
@@ -174,7 +174,7 @@ barras_fig = px.bar(
     bienes_count.sort_values(by='count_week', ascending=False),
     x='count_week',
     y='bien_afectado',
-    title=f"Bienes afectados por semana en {selected_municipio}",
+    title=f"Bienes afectados por semana en {selected_municipio_bien}",
     labels={'count_week': 'Bienes afectados por semana', 'bien_afectado': 'Bien Afectado'},
     orientation='h',
     color='bien_afectado'
