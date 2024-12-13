@@ -13,6 +13,18 @@ import random
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
 
+# Aplicar estilos personalizados
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    html, body, [class*="css"]  {
+        font-family: 'Poppins', sans-serif;
+    }
+    .black-bg { background-color: black; color: white; }
+    .white-bg { background-color: white; color: black; }
+    </style>
+""", unsafe_allow_html=True)
+
 # Título de la aplicación
 st.title("Análisis de Delitos en Jalisco")
 st.subheader("Por Miguel Vizcaíno")
@@ -103,7 +115,9 @@ df_clean = df_hour.copy()
 df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
 st.dataframe(df_clean.head())
 # -------------------- TIPO DE DELITO ------------------------------
+st.markdown('<div class="black-bg">', unsafe_allow_html=True)
 st.subheader("1. Análisis de Tipos de Delitos")
+st.write("En esta sección se obtendrá información sobre la distribución de los diferentes tipos de delito en función del municipio que se quiera analizar.")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
@@ -158,7 +172,9 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # -------------------- TIPO DE BIEN AFECTADO ------------------------------
+st.markdown('<div class="white-bg">', unsafe_allow_html=True)
 st.subheader("2. Análisis de Tipos de Bien Afectado")
+st.write("En esta sección se obtendrá información sobre la distribución de los diferentes bienes que son afectados por cada delito en función del municipio que se quiera analizar.")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
@@ -214,7 +230,9 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # --------------------------- TIEMPO -----------------------------------
+st.markdown('<div class="black-bg">', unsafe_allow_html=True)
 st.subheader("3. Análisis de Delitos en el Tiempo")
+st.write("En esta sección se obtendrá información sobre la distribución por día de la semana y hora de la cantidad de delitos cometidos del delito seleccionado.")
 # Crear una lista de delitos y agregar la opción "Total"
 delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el delito
@@ -255,46 +273,40 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # ------------------------- UBICACION -------------------------------
-st.subheader("4. Análisis de Colonias por Tipo de Delito")
-
+st.markdown('<div class="white-bg">', unsafe_allow_html=True)
+st.subheader("4. Análisis de Tipo de Delito por Ubicación")
+st.write("En esta sección se obtendrá información sobre la distribución geográfica por colonias de la cantidad de delitos cometidos del delito seleccionado.")
 # Crear lista de delitos únicos y agregar la opción "Todos"
 delitos = ["Todos"] + sorted(df_loc['delito'].unique())
-
 # Crear un menú desplegable para seleccionar el tipo de delito
 selected_delito = st.selectbox(
     "Selecciona un tipo de delito:",
     delitos,
     key="selectbox_tipo_delito"
 )
-
 # Filtrar los datos según el delito seleccionado
 if selected_delito == "Todos":
     filtered_df_2 = df_loc
 else:
     filtered_df_2 = df_loc[df_loc['delito'] == selected_delito]
-
 # Agrupar por colonia y contar los delitos
 colonias_count = filtered_df_2['colonia'].value_counts().reset_index()
 colonias_count.columns = ['colonia', 'count']  # Renombrar columnas
-
 # Tomar las primeras 10 colonias con más delitos
 top_colonias = colonias_count.head(10)
-
 # Crear la gráfica de barras horizontales
 bar_fig = px.bar(
     top_colonias.sort_values(by='count', ascending=True),
     x='count',
     y='colonia',
-    title=f"Top 10 colonias con más delitos ({selected_delito})",
+    title=f"Top 10 colonias con más delitos: {selected_delito}",
     labels={'count': 'Número de delitos', 'colonia': 'Colonia'},
     orientation='h',
     color='count',
     color_continuous_scale='Reds'
 )
-
 # Mostrar la gráfica de barras
 st.plotly_chart(bar_fig)
-
 # Datos resumidos
 st.subheader("Datos resumidos")
 st.dataframe(top_colonias.style.set_properties(**{
@@ -302,16 +314,13 @@ st.dataframe(top_colonias.style.set_properties(**{
 }).set_table_styles([
     dict(selector='th', props=[('text-align', 'center')])
 ]))
-
 # Mapa de Jalisco
 st.subheader("Mapa de las 10 principales colonias con más delitos")
 # Filtrar las 10 colonias principales con sus coordenadas
 map_data = df_loc[df_loc['colonia'].isin(top_colonias['colonia'])]
 map_data = map_data.drop_duplicates(subset=['colonia'])  # Evitar duplicados
-
 # Crear un mapa centrado en Jalisco
 m = folium.Map(location=[20.6667, -103.3500], zoom_start=10)
-
 # Agregar marcadores para las colonias principales
 marker_cluster = MarkerCluster().add_to(m)
 for _, row in map_data.iterrows():
@@ -320,6 +329,11 @@ for _, row in map_data.iterrows():
         popup=f"{row['colonia']}<br>Delitos: {top_colonias[top_colonias['colonia'] == row['colonia']]['count'].values[0]}",
         icon=folium.Icon(color='red', icon='info-sign')
     ).add_to(marker_cluster)
-
 # Mostrar el mapa en Streamlit
 st_map = st_folium(m, width=700, height=500)
+
+# Agregar sección para mostrar/ocultar código fuente
+with st.expander("Mostrar código fuente"):
+    with open("main.py", "r") as file:
+        code = file.read()
+    st.code(code, language="python")
