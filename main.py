@@ -109,14 +109,14 @@ selected_municipio_delitos = st.selectbox(
     key="selectbox_municipio_delitos")
 # Filtrar los datos según el municipio seleccionado
 if selected_municipio_delitos == "Total":
-    filtered_df = df  # Usar todos los registros
+    filtered_df_1 = df  # Usar todos los registros
 else:
-    filtered_df = df[df['municipio'] == selected_municipio_delitos]
+    filtered_df_1 = df[df['municipio'] == selected_municipio_delitos]
 # Calcular el número de semanas entre la primera y última fecha
-filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
-num_semanas = ((filtered_df['fecha'].max() - filtered_df['fecha'].min()).days // 7) + 1
+filtered_df_1['fecha'] = pd.to_datetime(filtered_df_1['fecha'])
+num_semanas = ((filtered_df_1['fecha'].max() - filtered_df_1['fecha'].min()).days // 7) + 1
 # Agrupar por 'delito' y contar las ocurrencias
-delitos_count = filtered_df['delito'].value_counts().reset_index()
+delitos_count = filtered_df_1['delito'].value_counts().reset_index()
 delitos_count.columns = ['delito', 'count']  # Renombrar columnas para claridad
 # Calcular el porcentaje y el conteo semanal
 delitos_count['percentage'] = (delitos_count['count'] / delitos_count['count'].sum()) * 100
@@ -165,14 +165,14 @@ selected_municipio_bien = st.selectbox(
 )
 # Filtrar los datos según el municipio seleccionado
 if selected_municipio_bien == "Total":
-    filtered_df = df  # Usar todos los registros
+    filtered_df_2 = df  # Usar todos los registros
 else:
-    filtered_df = df[df['municipio'] == selected_municipio_bien]
+    filtered_df_2 = df[df['municipio'] == selected_municipio_bien]
 # Calcular el número de semanas entre la primera y última fecha
-filtered_df['fecha'] = pd.to_datetime(filtered_df['fecha'])
-num_semanas = ((filtered_df['fecha'].max() - filtered_df['fecha'].min()).days // 7) + 1
+filtered_df_2['fecha'] = pd.to_datetime(filtered_df_2['fecha'])
+num_semanas = ((filtered_df_2['fecha'].max() - filtered_df_2['fecha'].min()).days // 7) + 1
 # Agrupar por 'bien_afectado' y contar las ocurrencias
-bienes_count = filtered_df['bien_afectado'].value_counts().reset_index()
+bienes_count = filtered_df_2['bien_afectado'].value_counts().reset_index()
 bienes_count.columns = ['bien_afectado', 'count']  # Renombrar columnas para claridad
 # Calcular el porcentaje y el conteo semanal
 bienes_count['percentage'] = (bienes_count['count'] / bienes_count['count'].sum()) * 100
@@ -210,8 +210,24 @@ st.dataframe(data_summary.style.set_properties(**{
 ]))
 
 # --------------------------- TIEMPO -----------------------------------
+st.subheader("1. Análisis de Tipos en el Tiempo")
+
+# Crear una lista de delitos y agregar la opción "Total"
+delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
+# Crear un menú desplegable para seleccionar el municipio
+selected_delitos_heatmap = st.selectbox(
+    "Selecciona un delito:",
+    municipios,
+    key="delitos_heatmap"
+)
+# Filtrar los datos según el municipio seleccionado
+if selected_delitos_heatmap == "Total":
+    filtered_df_3 = df_hour  # Usar todos los registros
+else:
+    filtered_df_3 = df[df_hour['municipio'] == selected_municipio_bien]
+
 # Agrupar los datos por 'weekday' y 'hora_interval' y contar la cantidad de delitos
-heatmap_data = df_hour.groupby(['weekday', 'hora_interval']).size().reset_index(name='conteo')
+heatmap_data = filtered_df_3.groupby(['weekday', 'hora_interval']).size().reset_index(name='conteo')
 
 # Crear el heatmap usando Plotly Express
 fig = px.density_heatmap(heatmap_data,
@@ -235,9 +251,6 @@ fig.update_layout(
         'categoryarray': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']  # Orden de los días
     }
 )
-
-# Título de la aplicación
-st.title("Distribución de Delitos por Día de la Semana y Hora")
 
 # Mostrar el gráfico interactivo en Streamlit
 st.plotly_chart(fig)
