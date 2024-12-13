@@ -254,7 +254,15 @@ fig.update_layout(
 # Mostrar el gráfico interactivo en Streamlit
 st.plotly_chart(fig)
 
- # ------------------------- UBICACION -------------------------------
+# ------------------------- UBICACION -------------------------------
+st.subheader("4. Análisis de Delitos por Ubicación")
+# Descripción breve sobre el mapa
+st.write("""
+    Este es un mapa interactivo que muestra los delitos ocurridos en Jalisco. 
+    Los puntos en el mapa están agrupados de acuerdo a su proximidad y se irán
+    separando conforme te acerques al mapa. La muestra de puntos ha sido reducida
+    para mejorar el rendimiento.
+""")
 # Crear un menú desplegable para seleccionar el delito
 selected_delitos_map = st.selectbox(
     "Selecciona un delito:",
@@ -292,16 +300,6 @@ for index, row in sample_filtered_df_4.iterrows():
         icon=folium.Icon(color='red', icon='info-sign')
     ).add_to(marker_cluster)
 
-# Título de la aplicación
-st.title("Mapa de Delitos en Jalisco, México")
-
-# Descripción breve sobre el mapa
-st.write("""
-    Este es un mapa interactivo que muestra los delitos ocurridos en Jalisco. 
-    Los puntos en el mapa están agrupados de acuerdo a su proximidad y se irán
-    separando conforme te acerques al mapa. La muestra de puntos ha sido reducida
-    para mejorar el rendimiento.
-""")
 
 # Mostrar el mapa interactivo en Streamlit
 st_folium(m, width=725, height=500)
