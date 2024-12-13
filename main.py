@@ -81,8 +81,18 @@ df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
 # -------------------- TIPO DE DELITO ------------------------------
 st.title("1. Análisis de Tipos de Delitos")
 st.subheader("1.1 Distribución de los tipos de delito")
+# Crear una lista de municipios únicos
+municipios = df['municipio'].unique()
+municipios = sorted(municipios)  # Ordenar alfabéticamente
+
+# Crear un menú desplegable para seleccionar el municipio
+selected_municipio = st.selectbox("Selecciona un municipio:", municipios)
+
+# Filtrar los datos según el municipio seleccionado
+filtered_df = df[df['municipio'] == selected_municipio]
+
 # Agrupar por 'delito' y contar las ocurrencias
-delitos_count = df['delito'].value_counts().reset_index()
+delitos_count = filtered_df['delito'].value_counts().reset_index()
 delitos_count.columns = ['delito', 'count']  # Renombrar columnas para claridad
 
 # Calcular el porcentaje de cada delito
@@ -93,13 +103,12 @@ fig = px.pie(
     delitos_count,
     values='percentage',
     names='delito',
-    title='Porcentaje de cada Delito',
+    title=f"Porcentaje de delitos en {selected_municipio}",
     labels={'delito': 'Delito', 'percentage': 'Porcentaje'},
     hover_data=['count'],  # Mostrar el conteo al pasar el mouse
 )
 
 # Mostrar la gráfica en Streamlit
-import streamlit as st
 st.plotly_chart(fig)
 
 # Mostrar los datos en una tabla interactiva
