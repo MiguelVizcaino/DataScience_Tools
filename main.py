@@ -224,7 +224,7 @@ selected_delitos_heatmap = st.selectbox(
 if selected_delitos_heatmap == "Total":
     filtered_df_3 = df_hour  # Usar todos los registros
 else:
-    filtered_df_3 = df[df_hour['delito'] == selected_delitos_heatmap]
+    filtered_df_3 = df_hour[df_hour['delito'] == selected_delitos_heatmap]
 
 # Agrupar los datos por 'weekday' y 'hora_interval' y contar la cantidad de delitos
 heatmap_data = filtered_df_3.groupby(['weekday', 'hora_interval']).size().reset_index(name='conteo')
