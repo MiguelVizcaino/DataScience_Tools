@@ -81,15 +81,17 @@ df_clean = df_clean[df_clean['colonia'] != 'NO DISPONIBLE']
 # -------------------- TIPO DE DELITO ------------------------------
 st.title("1. Análisis de Tipos de Delitos")
 st.subheader("1.1 Distribución de los tipos de delito")
-# Crear una lista de municipios únicos
-municipios = df['municipio'].unique()
-municipios = sorted(municipios)  # Ordenar alfabéticamente
+# Crear una lista de municipios únicos y agregar la opción "Total"
+municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 
 # Crear un menú desplegable para seleccionar el municipio
 selected_municipio = st.selectbox("Selecciona un municipio:", municipios)
 
 # Filtrar los datos según el municipio seleccionado
-filtered_df = df[df['municipio'] == selected_municipio]
+if selected_municipio == "Total":
+    filtered_df = df  # Usar todos los registros
+else:
+    filtered_df = df[df['municipio'] == selected_municipio]
 
 # Agrupar por 'delito' y contar las ocurrencias
 delitos_count = filtered_df['delito'].value_counts().reset_index()
@@ -111,6 +113,7 @@ fig = px.pie(
 # Mostrar la gráfica en Streamlit
 st.plotly_chart(fig)
 
-# Mostrar los datos en una tabla interactiva
+# Mostrar la tabla resumida
+data_summary = delitos_count[['delito', 'count', 'percentage']]
 st.subheader("Datos resumidos")
-st.dataframe(delitos_count, use_container_width=True)
+st.dataframe(data_summary)
