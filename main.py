@@ -9,6 +9,9 @@ import folium
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
 import random
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from matplotlib import cm
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
@@ -149,6 +152,75 @@ barras_fig = px.bar(
 )
 # Mostrar la gráfica de barras en Streamlit
 st.plotly_chart(barras_fig)
+
+#--------------- Animación -------------------
+
+df_rank = filtered_df_1.copy()
+df_rank['fecha'] = pd.to_datetime(df_rank['fecha'])  # Convert 'fecha' to datetime
+df_rank['mes'] = df_rank['fecha'].dt.month_name()  # Extract the month
+df_rank['mes_num'] = df_rank['fecha'].dt.month  # Extract the month as a number
+
+delito_counts = df_rank.groupby(['mes_num', 'delito'])['delito'].count().unstack(fill_value=0)
+delito_counts = delito_counts.reset_index()  # Reindex to make 'mes' a regular column
+
+# Ordenar el DataFrame por la columna 'mes'
+delito_counts = delito_counts.sort_values('mes_num')
+
+# Interpolación para suavizar la animación
+n_inter = 10
+delito_counts = delito_counts.reindex(delito_counts.index.repeat(n_inter)).interpolate()
+delito_counts_rank = delito_counts.rank(axis=1, ascending=False, method="dense")
+delito_counts_rank = delito_counts_rank.reindex(delito_counts_rank.index.repeat(n_inter)).interpolate()
+
+# Configuración de colores dinámicos (oscuro -> claro basado en la posición)
+def generate_colors(n, colormap="Reds"):
+    cmap = cm.get_cmap(colormap)
+    return [cmap(1 - (i / (n + 1))) for i in range(n)]
+
+# Parámetros iniciales
+nombres = delito_counts.columns.tolist()
+n_frames = len(delito_counts)
+colores = generate_colors(len(nombres), colormap="Reds")
+
+# Crear la figura para la animación
+fig, ax = plt.subplots(figsize=(10, 6))
+
+def animate(i):
+    ax.clear()
+    ax.set_xlim(0, delito_counts.max().max() * 1.1)
+    ax.set_ylim(0.5, 10.5)
+    ax.set_yticks(range(1, 11))
+    ax.set_yticklabels(nombres[::-1])
+    ax.set_title(f"Top 10 Delitos - Mes {i // n_inter + 1}")
+
+    # Obtener datos del frame actual
+    current_values = delito_counts.iloc[i]
+    current_positions = delito_counts_rank.iloc[i]
+
+    sorted_indices = current_positions.argsort()[:10]
+    sorted_values = current_values.iloc[sorted_indices]
+    sorted_positions = current_positions.iloc[sorted_indices]
+    sorted_names = [nombres[idx] for idx in sorted_indices]
+
+    # Dibujar barras horizontales
+    bars = ax.barh(range(1, 11), sorted_values, color=[colores[idx] for idx in sorted_indices])
+
+    # Agregar etiquetas a las barras
+    for bar, val, name in zip(bars, sorted_values, sorted_names):
+        ax.text(bar.get_width() - 5, bar.get_y() + bar.get_height() / 2,
+                f"{name} - {val:.0f}", va="center", ha="right", fontsize=10, color="white")
+
+    return bars
+
+# Animación con Matplotlib
+anim = FuncAnimation(fig, animate, frames=n_frames, interval=100, blit=False)
+
+# Mostrar la animación en Streamlit
+st.write("### Animación de los Top 10 Delitos")
+st.pyplot(fig)
+
+#--------------- Animación -------------------
+
 # Mostrar la tabla resumida centrada
 data_summary = delitos_count[['delito', 'count', 'count_week', 'percentage']]
 st.subheader("Datos resumidos")
