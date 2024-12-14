@@ -156,58 +156,9 @@ barras_fig = px.bar(
 st.plotly_chart(barras_fig)
 
 #--------------- Animación -------------------
-
-cmap = colormaps.get_cmap("Spectral")
-colores = [cmap(i) for i in np.linspace(0, 0.4, 5)]
-
-
-
-delito_counts_n = filtered_df_1.copy()
-n_inter = 10
-delito_counts_n.index = delito_counts_n.index * n_inter
-delito_counts_n = delito_counts_n.reindex(range(0, delito_counts_n.index.max() + 1))
-delito_counts_n = delito_counts_n.interpolate()
-
-delito_counts_rank = filtered_df_1.rank(axis=1, ascending=True, method="average")
-delito_counts_rank.index = delito_counts_rank.index * n_inter
-delito_counts_rank = delito_counts_rank.reindex(range(0, delito_counts_rank.index.max() + 1))
-delito_counts_rank = delito_counts_rank.interpolate()
-
-names = delito_counts_rank.columns[1:]
-positions = list(range(1, names.size + 1))
-x_lim = (0, delito_counts_n[delito_counts_n.mean().idxmax()].max()*1.1)
-y_lim = (0, names.size + 2)
-
-fig = plt.figure(figsize=(8, 3))
-ax = fig.add_subplot()
-ax.set_xlim(x_lim)
-ax.set_ylim(y_lim)
-ax.set_yticks(positions)
-
-
-n_frames = len(delito_counts_n)
-
-def animate(i):
-    ax.clear()
-    ax.set_xlim(x_lim)
-    ax.set_ylim(y_lim)
-    positions = list(range(1, names.size + 1))
-    ax.set_yticks(positions)
-
-    values = delito_counts_n.iloc[i]
-    positions = delito_counts_rank.iloc[i]
-
-    bars = ax.barh(positions, values, color=colores)
-
-    for bar, value, name in zip(bars, values, names):
-        ax.text(bar.get_width() - 5, bar.get_y() + bar.get_height()/2,
-                f'{name} - {value:.1f}', va='center', ha='right', fontsize=5, color='white')
-
-    return bars
-
-anim = animation.FuncAnimation(fig, animate, frames=n_frames, interval=100)
-js = anim.to_jshtml()
-HTML(js)
+st.subheader("Evolución de los tiops de delito más cometidos a lo largo del año")
+# Display the video
+st.video("crimes_year.mp4")
 
 #--------------- Animación -------------------
 
