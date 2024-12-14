@@ -106,9 +106,9 @@ st.dataframe(df_clean.head())
 st.subheader("1. Análisis de Tipos de Delito")
 st.write("En esta sección se obtendrá información sobre la distribución de los diferentes tipos de delito en función del municipio que se quiera analizar.")
 st.write("La información será representada por las siguientes gráficas:")
-st.write("  - *Gráfica de Pastel*: Distribución de porcentajes")
-st.write("  - *Racebars*: Top mayores delitos cometidos por semana")
-st.write("  - *Tabla de Resumen*: Muestra en forma tabular los datos mostrados en las gráficas")
+st.write("  - **Gráfica de Pastel**: Distribución de porcentajes")
+st.write("  - **Racebars**: Top mayores delitos cometidos por semana")
+st.write("  - **Tabla de Resumen**: Muestra en forma tabular los datos mostrados en las gráficas")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
@@ -166,9 +166,9 @@ st.dataframe(data_summary.style.set_properties(**{
 st.subheader("2. Análisis de Tipos de Bien Afectado")
 st.write("En esta sección se obtendrá información sobre la distribución de los diferentes bienes que son afectados por cada delito en función del municipio que se quiera analizar.")
 st.write("La información será representada por las siguientes gráficas:")
-st.write("  - *Gráfica de Pastel*: Distribución de porcentajes")
-st.write("  - *Racebars*: Top bienes más afectados por semana")
-st.write("  - *Tabla de Resumen*: Muestra en forma tabular los datos mostrados en las gráficas")
+st.write("  - **Gráfica de Pastel**: Distribución de porcentajes")
+st.write("  - **Racebars**: Top bienes más afectados por semana")
+st.write("  - **Tabla de Resumen**: Muestra en forma tabular los datos mostrados en las gráficas")
 # Crear una lista de municipios únicos y agregar la opción "Total"
 municipios = ["Total"] + sorted(df['municipio'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el municipio
@@ -227,8 +227,8 @@ st.dataframe(data_summary.style.set_properties(**{
 st.subheader("3. Análisis de Delitos en el Tiempo")
 st.write("En esta sección se obtendrá información sobre la distribución por día de la semana y hora, así como por meses del año de la cantidad de delitos cometidos del delito seleccionado.")
 st.write("La información será representada por las siguientes gráficas:")
-st.write("  - *Mapa de Calor*: Representa en cada día de la semana y hora la concentración de delitos por tipo.")
-st.write("  - *Animación de Racebars*: Animación que muestra la evolución del top de tipos de delito cometidos a lo largo del año")
+st.write("  - **Mapa de Calor**: Representa en cada día de la semana y hora la concentración de delitos por tipo.")
+st.write("  - **Animación de Racebars**: Animación que muestra la evolución del top de tipos de delito cometidos a lo largo del año")
 # Crear una lista de delitos y agregar la opción "Total"
 delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
 # Crear un menú desplegable para seleccionar el delito
@@ -276,9 +276,9 @@ st.video("crimes_year.mp4")
 st.subheader("4. Análisis de Tipo de Delito por Ubicación")
 st.write("En esta sección se obtendrá información sobre la distribución geográfica por colonias de la cantidad de delitos cometidos del delito seleccionado.")
 st.write("La información será representada por las siguientes gráficas:")
-st.write("  - *Racebars*: Top colonias con más incidentes de cada tipo de delito")
-st.write("  - *Mapa Geográfico*: Muestra el Top 10 de colonias con más incidentes por cada tipo de delito")
-st.write("  - *Tabla de Resumen*: Muestra en forma tabular los datos mostrados en las gráficas")
+st.write("  - **Racebars**: Top colonias con más incidentes de cada tipo de delito")
+st.write("  - **Mapa Geográfico**: Muestra el Top 10 de colonias con más incidentes por cada tipo de delito")
+st.write("  - **Tabla de Resumen**: Muestra en forma tabular los datos mostrados en las gráficas")
 # Crear lista de delitos únicos y agregar la opción "Todos"
 delitos = ["Todos"] + sorted(df_loc['delito'].unique())
 # Crear un menú desplegable para seleccionar el tipo de delito
