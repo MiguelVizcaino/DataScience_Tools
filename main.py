@@ -216,7 +216,7 @@ barras_fig = px.bar(
 st.plotly_chart(barras_fig)
 # Mostrar la tabla resumida centrada
 data_summary = bienes_count[['bien_afectado', 'count', 'count_week', 'percentage']]
-st.write("*Datos resumidos*")
+st.write("**Datos resumidos**")
 st.dataframe(data_summary.style.set_properties(**{
     'text-align': 'center'
 }).set_table_styles([
@@ -311,7 +311,7 @@ bar_fig = px.bar(
 # Mostrar la gráfica de barras
 st.plotly_chart(bar_fig)
 # Mapa de Jalisco
-st.write("*Mapa de las 10 principales colonias con más delitos*")
+st.write("**Mapa de las 10 principales colonias con más delitos**")
 # Filtrar las 10 colonias principales con sus coordenadas
 map_data = df_loc[df_loc['colonia'].isin(top_colonias['colonia'])]
 map_data = map_data.drop_duplicates(subset=['colonia'])  # Evitar duplicados
@@ -328,7 +328,7 @@ for _, row in map_data.iterrows():
 # Mostrar el mapa en Streamlit
 st_map = st_folium(m, width=700, height=500)
 # Datos resumidos
-st.write("*Datos resumidos*")
+st.write("**Datos resumidos**")
 st.dataframe(top_colonias.style.set_properties(**{
     'text-align': 'center'
 }).set_table_styles([
