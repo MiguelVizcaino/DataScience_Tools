@@ -225,9 +225,9 @@ st.dataframe(data_summary.style.set_properties(**{
 
 # --------------------------- TIEMPO -----------------------------------
 st.subheader("3. Análisis de Delitos en el Tiempo")
-st.write("En esta sección se obtendrá información sobre la distribución por día de la semana y hora, así como por meses del año de la cantidad de delitos cometidos del delito seleccionado.")
+st.write("En esta sección se obtendrá información sobre la distribución por día de la semana y hora, así como por meses del año de la cantidad de delitos.")
 st.write("La información será representada por las siguientes gráficas:")
-st.write("  - **Mapa de Calor**: Representa en cada día de la semana y hora la concentración de delitos por tipo.")
+st.write("  - **Mapa de Calor**: Representa la concentración de delitos en cada hora y día de la semana.")
 st.write("  - **Animación de Racebars**: Animación que muestra la evolución del top de tipos de delito cometidos a lo largo del año")
 # Crear una lista de delitos y agregar la opción "Total"
 delitos = ["Total"] + sorted(df['delito'].unique())  # Ordenar alfabéticamente y agregar "Total"
@@ -251,7 +251,7 @@ fig = px.density_heatmap(heatmap_data,
                          nbinsy=12,
                          z="conteo", 
                          color_continuous_scale="reds",  # Paleta de colores rojos
-                         title=f"Distribución de delitos semanal: {selected_delitos_heatmap}",
+                         title=f"Distribución semanal de delitos: {selected_delitos_heatmap}",
                          labels={"conteo": "Número de Delitos", "hora_interval": "Hora", "weekday": "Día de la Semana"})
 # Ajustar el orden de los días de la semana
 fig.update_layout(
@@ -268,7 +268,7 @@ fig.update_layout(
 # Mostrar el gráfico interactivo en Streamlit
 st.plotly_chart(fig)
 # Se agregar el video de la animación de racebars
-st.subheader("Evolución de los tipos de delito más cometidos a lo largo del año")
+st.write("**Evolución de los tipos de delito más cometidos a lo largo del año**")
 # Display the video
 st.video("crimes_year.mp4")
 
@@ -276,8 +276,8 @@ st.video("crimes_year.mp4")
 st.subheader("4. Análisis de Tipo de Delito por Ubicación")
 st.write("En esta sección se obtendrá información sobre la distribución geográfica por colonias de la cantidad de delitos cometidos del delito seleccionado.")
 st.write("La información será representada por las siguientes gráficas:")
-st.write("  - **Racebars**: Top colonias con más incidentes de cada tipo de delito")
-st.write("  - **Mapa Geográfico**: Muestra el Top 10 de colonias con más incidentes por cada tipo de delito")
+st.write("  - **Racebars**: Top 10 colonias con más incidentes de cada tipo de delito")
+st.write("  - **Mapa Geográfico**: Muestra la ubicación del Top 10 de colonias con más incidentes por cada tipo de delito")
 st.write("  - **Tabla de Resumen**: Muestra en forma tabular los datos mostrados en las gráficas")
 # Crear lista de delitos únicos y agregar la opción "Todos"
 delitos = ["Todos"] + sorted(df_loc['delito'].unique())
