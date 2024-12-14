@@ -9,11 +9,6 @@ import folium
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
 import random
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-from matplotlib import cm
-from matplotlib import animation, colormaps
-from IPython.display import HTML
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
