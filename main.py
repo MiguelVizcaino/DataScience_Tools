@@ -12,6 +12,8 @@ import random
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib import cm
+from matplotlib import animation, colormaps
+from IPython.display import HTML
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis de Delitos", layout="wide")
@@ -155,24 +157,18 @@ st.plotly_chart(barras_fig)
 
 #--------------- Animación -------------------
 
-df_rank = filtered_df_1.copy()
-df_rank['fecha'] = pd.to_datetime(df_rank['fecha'])  # Convert 'fecha' to datetime
-df_rank['mes'] = df_rank['fecha'].dt.month_name()  # Extract the month
-df_rank['mes_num'] = df_rank['fecha'].dt.month  # Extract the month as a number
+cmap = colormaps.get_cmap("Spectral")
+colores = [cmap(i) for i in np.linspace(0, 0.4, 5)]
 
-delito_counts = df_rank.groupby(['mes_num', 'delito'])['delito'].count().unstack(fill_value=0)
-delito_counts = delito_counts.reset_index()  # Reindex to make 'mes' a regular column
 
-# Ordenar el DataFrame por la columna 'mes'
-delito_counts = delito_counts.sort_values('mes_num')
 
-delito_counts_n = delito_counts.copy()
+delito_counts_n = filtered_df_1.copy()
 n_inter = 10
 delito_counts_n.index = delito_counts_n.index * n_inter
 delito_counts_n = delito_counts_n.reindex(range(0, delito_counts_n.index.max() + 1))
 delito_counts_n = delito_counts_n.interpolate()
 
-delito_counts_rank = delito_counts.rank(axis=1, ascending=True, method="average")
+delito_counts_rank = filtered_df_1.rank(axis=1, ascending=True, method="average")
 delito_counts_rank.index = delito_counts_rank.index * n_inter
 delito_counts_rank = delito_counts_rank.reindex(range(0, delito_counts_rank.index.max() + 1))
 delito_counts_rank = delito_counts_rank.interpolate()
@@ -205,16 +201,13 @@ def animate(i):
 
     for bar, value, name in zip(bars, values, names):
         ax.text(bar.get_width() - 5, bar.get_y() + bar.get_height()/2,
-                f'{name} - {value:.1f}', va='center', ha='right', fontsize=10, color='white')
+                f'{name} - {value:.1f}', va='center', ha='right', fontsize=5, color='white')
 
     return bars
 
-# Animación con Matplotlib
-anim = FuncAnimation(fig, animate, frames=n_frames, interval=100, blit=False)
-
-# Mostrar la animación en Streamlit
-st.write("### Animación de los Top 10 Delitos")
-st.pyplot(fig)
+anim = animation.FuncAnimation(fig, animate, frames=n_frames, interval=100)
+js = anim.to_jshtml()
+HTML(js)
 
 #--------------- Animación -------------------
 
