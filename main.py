@@ -166,49 +166,46 @@ delito_counts = delito_counts.reset_index()  # Reindex to make 'mes' a regular c
 # Ordenar el DataFrame por la columna 'mes'
 delito_counts = delito_counts.sort_values('mes_num')
 
-# Interpolación para suavizar la animación
+delito_counts_n = delito_counts.copy()
 n_inter = 10
-delito_counts = delito_counts.reindex(delito_counts.index.repeat(n_inter)).interpolate()
-delito_counts_rank = delito_counts.rank(axis=1, ascending=False, method="dense")
-delito_counts_rank = delito_counts_rank.reindex(delito_counts_rank.index.repeat(n_inter)).interpolate()
+delito_counts_n.index = delito_counts_n.index * n_inter
+delito_counts_n = delito_counts_n.reindex(range(0, delito_counts_n.index.max() + 1))
+delito_counts_n = delito_counts_n.interpolate()
 
-# Configuración de colores dinámicos (oscuro -> claro basado en la posición)
-def generate_colors(n, colormap="Reds"):
-    cmap = cm.get_cmap(colormap)
-    return [cmap(1 - (i / (n + 1))) for i in range(n)]
+delito_counts_rank = delito_counts.rank(axis=1, ascending=True, method="average")
+delito_counts_rank.index = delito_counts_rank.index * n_inter
+delito_counts_rank = delito_counts_rank.reindex(range(0, delito_counts_rank.index.max() + 1))
+delito_counts_rank = delito_counts_rank.interpolate()
 
-# Parámetros iniciales
-nombres = delito_counts.columns.tolist()
-n_frames = len(delito_counts)
-colores = generate_colors(len(nombres), colormap="Reds")
+names = delito_counts_rank.columns[1:]
+positions = list(range(1, names.size + 1))
+x_lim = (0, delito_counts_n[delito_counts_n.mean().idxmax()].max()*1.1)
+y_lim = (0, names.size + 2)
 
-# Crear la figura para la animación
-fig, ax = plt.subplots(figsize=(10, 6))
+fig = plt.figure(figsize=(8, 3))
+ax = fig.add_subplot()
+ax.set_xlim(x_lim)
+ax.set_ylim(y_lim)
+ax.set_yticks(positions)
+
+
+n_frames = len(delito_counts_n)
 
 def animate(i):
     ax.clear()
-    ax.set_xlim(0, delito_counts.max().max() * 1.1)
-    ax.set_ylim(0.5, 10.5)
-    ax.set_yticks(range(1, 11))
-    ax.set_yticklabels(nombres[::-1])
-    ax.set_title(f"Top 10 Delitos - Mes {i // n_inter + 1}")
+    ax.set_xlim(x_lim)
+    ax.set_ylim(y_lim)
+    positions = list(range(1, names.size + 1))
+    ax.set_yticks(positions)
 
-    # Obtener datos del frame actual
-    current_values = delito_counts.iloc[i]
-    current_positions = delito_counts_rank.iloc[i]
+    values = delito_counts_n.iloc[i]
+    positions = delito_counts_rank.iloc[i]
 
-    sorted_indices = current_positions.argsort()[:10]
-    sorted_values = current_values.iloc[sorted_indices]
-    sorted_positions = current_positions.iloc[sorted_indices]
-    sorted_names = [nombres[idx] for idx in sorted_indices]
+    bars = ax.barh(positions, values, color=colores)
 
-    # Dibujar barras horizontales
-    bars = ax.barh(range(1, 11), sorted_values, color=[colores[idx] for idx in sorted_indices])
-
-    # Agregar etiquetas a las barras
-    for bar, val, name in zip(bars, sorted_values, sorted_names):
-        ax.text(bar.get_width() - 5, bar.get_y() + bar.get_height() / 2,
-                f"{name} - {val:.0f}", va="center", ha="right", fontsize=10, color="white")
+    for bar, value, name in zip(bars, values, names):
+        ax.text(bar.get_width() - 5, bar.get_y() + bar.get_height()/2,
+                f'{name} - {value:.1f}', va='center', ha='right', fontsize=10, color='white')
 
     return bars
 
