@@ -155,7 +155,7 @@ barras_fig = px.bar(
 st.plotly_chart(barras_fig)
 # Mostrar la tabla resumida centrada
 data_summary = delitos_count[['delito', 'count', 'count_week', 'percentage']]
-st.write("*Datos resumidos*")
+st.write("**Datos resumidos**")
 st.dataframe(data_summary.style.set_properties(**{
     'text-align': 'center'
 }).set_table_styles([
